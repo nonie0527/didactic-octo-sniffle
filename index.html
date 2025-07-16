@@ -2,6 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>定位資訊送出</title>
   <style>
     body { font-family: sans-serif; padding: 2em; }
@@ -11,11 +12,16 @@
   </style>
 </head>
 <body>
-  <h2>定位資訊送出測試</h2>
-  <p>請輸入您的 Email 並允許定位權限，系統將自動送出定位資訊。</p>
-  <input type="email" id="email" placeholder="請輸入您的 Email" required>
-  <button onclick="submitLocation()">送出定位資訊</button>
-  <div id="status">尚未送出</div>
+  <header>
+    <h2>定位資訊送出測試</h2>
+  </header>
+  <main>
+    <p>請輸入您的 Email 並允許定位權限，系統將自動送出定位資訊。</p>
+    <label for="email">Email：</label>
+    <input type="email" id="email" placeholder="請輸入您的 Email" required>
+    <button onclick="submitLocation()">送出定位資訊</button>
+    <div id="status">尚未送出</div>
+  </main>
 
   <script>
     const statusDiv = document.getElementById("status");
@@ -25,6 +31,12 @@
       const email = document.getElementById("email").value.trim();
       if (!email) {
         statusDiv.textContent = "請先輸入 Email。";
+        return;
+      }
+
+      // Email format validation
+      if (!/\S+@\S+\.\S+/.test(email)) {
+        statusDiv.textContent = "請輸入有效的 Email 地址。";
         return;
       }
 
@@ -50,7 +62,19 @@
             });
           },
           error => {
-            statusDiv.textContent = "無法取得定位：" + error.message;
+            switch (error.code) {
+              case error.PERMISSION_DENIED:
+                statusDiv.textContent = "使用者拒絕提供定位權限。";
+                break;
+              case error.POSITION_UNAVAILABLE:
+                statusDiv.textContent = "無法取得定位資訊。";
+                break;
+              case error.TIMEOUT:
+                statusDiv.textContent = "取得定位逾時，請再試一次。";
+                break;
+              default:
+                statusDiv.textContent = "發生未知錯誤：" + error.message;
+            }
           }
         );
       } else {
