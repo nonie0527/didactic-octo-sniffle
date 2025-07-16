@@ -8,8 +8,6 @@
     #status { margin-top: 1em; color: green; }
     input { margin: 0.5em 0; padding: 0.5em; width: 100%; max-width: 300px; }
     button { padding: 0.5em 1em; }
-    .qr-section { margin-top: 2em; }
-    img.qr { width: 300px; }
   </style>
 </head>
 <body>
@@ -18,11 +16,6 @@
   <input type="email" id="email" placeholder="請輸入您的 Email" required>
   <button onclick="submitLocation()">送出定位資訊</button>
   <div id="status">尚未送出</div>
-
-  <div class="qr-section">
-    <h3>📱 掃描 QR Code 開啟本頁面</h3>
-    <img class="qr" src="https://kr-prod.asyncgw.teams.microsoft.com/v1/objects/0-ea-d12-80a935a7ca976ddd31e38b28b1e0a437/views/original/generated_image.png" alt="定位資訊 QR Code">
-  </div>
 
   <script>
     const statusDiv = document.getElementById("status");
@@ -41,7 +34,7 @@
           position => {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
-            statusDiv.textContent = `取得座標：(${lat}, ${lng})，Email：${email}，正在送出...`;
+           statusDiv.textContent = `取得座標：(${lat}, ${lng})，Email：${email}，正在送出...`;
 
             fetch(webAppUrl, {
               method: "POST",
@@ -65,5 +58,8 @@
       }
     }
   </script>
+</body>
+</html>
+
 </body>
 </html>
