@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>定位資訊送出</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; }
+    #status { margin-top: 1em; color: green; }
+    input { margin: 0.5em 0; padding: 0.5em; width: 100%; max-width: 300px; }
+    button { padding: 0.5em 1em; }
+    .qr-section { margin-top: 2em; }
+    img.qr { width: 300px; }
+  </style>
+</head>
+<body>
+  <h2>定位資訊送出測試</h2>
+  <p>請輸入您的 Email 並允許定位權限，系統將自動送出定位資訊。</p>
+  <input type="email" id="email" placeholder="請輸入您的 Email" required>
+  <button onclick="submitLocation()">送出定位資訊</button>
+  <div id="status">尚未送出</div>
+
+  <div class="qr-section">
+    <h3>📱 掃描 QR Code 開啟本頁面</h3>
+    <img class="qr" src="https://kr-prod.asyncgw.teams.microsoft.com/v1/objects/0-ea-d12-80a935a7ca976ddd31e38b28b1e0a437/views/original/generated_image.png" alt="定位資訊 QR Code">
+  </div>
+
+  <script>
+    const statusDiv = document.getElementById("status");
+    const webAppUrl = "https://script.google.com/macros/s/AKfycbyjR6EL9ZRx3v3i-FYXeHxoAjRQU-1HNnwPnPQTChOcBbf0xLaC1DysTOp3iZKedeES2g/exec";
+
+    function submitLocation() {
+      const email = document.getElementById("email").value.trim();
+      if (!email) {
+        statusDiv.textContent = "請先輸入 Email。";
+        return;
+      }
+
+      if (navigator.geolocation) {
+        statusDiv.textContent = "正在取得定位資訊...";
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            statusDiv.textContent = `取得座標：(${lat}, ${lng})，Email：${email}，正在送出...`;
+
+            fetch(webAppUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({ lat: lat, lng: lng, email: email })
+            })
+            .then(response => response.text())
+            .then(data => {
+              statusDiv.textContent = `伺服器回應：${data}`;
+            })
+            .catch(error => {
+              statusDiv.textContent = `送出失敗：${error}`;
+            });
+          },
+          error => {
+            statusDiv.textContent = "無法取得定位：" + error.message;
+          }
+        );
+      } else {
+        statusDiv.textContent = "您的裝置不支援定位功能。";
+      }
+    }
+  </script>
+</body>
+</html>
